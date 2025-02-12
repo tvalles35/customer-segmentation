@@ -7,6 +7,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } fro
 export default function CustomerSegmentationTool() {
   const [data, setData] = useState([]);
   const [profitability, setProfitability] = useState(null);
+  const [churnRisk, setChurnRisk] = useState(null);
+  const [industryProfitability, setIndustryProfitability] = useState(null);
 
   const generateDummyData = () => {
     const dummyData = Array.from({ length: 100 }, (_, i) => ({
@@ -21,7 +23,7 @@ export default function CustomerSegmentationTool() {
     setData(dummyData);
   };
 
-  const calculateProfitability = () => {
+  const analyzeProfitability = () => {
     if (data.length === 0) return;
     
     const profitabilityData = data.map((item) => ({
@@ -44,32 +46,26 @@ export default function CustomerSegmentationTool() {
     setProfitability(profitabilityInsights);
   };
 
+  const analyzeChurnRisk = () => {
+    if (data.length === 0) return;
+
+    const churnRiskData = data.map((item) => ({
+      industry: item.industry,
+      churnRisk: item.employerContribution / item.monthlyPremium < 0.5 ? "High" : "Low",
+    }));
+    
+    setChurnRisk(churnRiskData);
+  };
+
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">Customer Segmentation Tool</h1>
+      <h1 className="text-xl font-bold mb-4">Customer Segmentation & Profitability Tool</h1>
       <Button onClick={generateDummyData} className="mb-4">Generate Dummy Data</Button>
-      <Button onClick={calculateProfitability} className="mb-4 ml-2">Generate Profitability Insights</Button>
+      <Button onClick={analyzeProfitability} className="mb-4 ml-2">Analyze Profitability</Button>
+      <Button onClick={analyzeChurnRisk} className="mb-4 ml-2">Analyze Churn Risk</Button>
       
-      {data.length > 0 && (
-        <Card className="p-4 mb-4">
-          <CardContent>
-            <h2 className="text-lg font-bold mb-2">Segment Overview</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data}>
-                <XAxis dataKey="industry" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="companySize" fill="#8884d8" name="Company Size" />
-                <Bar dataKey="monthlyPremium" fill="#82ca9d" name="Monthly Premium" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      )}
-
       {profitability && (
-        <Card className="p-4">
+        <Card className="p-4 mb-4">
           <CardContent>
             <h2 className="text-lg font-bold mb-2">Profitability Insights</h2>
             <ResponsiveContainer width="100%" height={300}>
@@ -79,6 +75,23 @@ export default function CustomerSegmentationTool() {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="avgProfit" fill="#FF5733" name="Avg Profit" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
+
+      {churnRisk && (
+        <Card className="p-4">
+          <CardContent>
+            <h2 className="text-lg font-bold mb-2">Churn Risk Analysis</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={churnRisk}>
+                <XAxis dataKey="industry" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="churnRisk" fill="#0088FE" name="Churn Risk" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
